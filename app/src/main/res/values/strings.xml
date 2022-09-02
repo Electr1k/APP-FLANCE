@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Flance</string>
+    <string name="search">Поиск</string>
+    <string name="reservation">Мои бронирования</string>
+    <string name="profile">Профиль</string>
+    <string name="title_activity_maps_activitytest">MapsActivitytest</string>
+    <string name="title_activity_maps_page">MapsPage</string>
+    <string name="booking">Забронировать</string>
+    <string name="countpers">Количество персон</string>
+    <string name="data">Выбор даты</string>
+    <string name="time">Выбор времени</string>
+    <string name="title_activity_booking_item">booking_item</string>
+    <string name="title_activity_register_form">register_form</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+</resources>

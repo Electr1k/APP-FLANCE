@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/registerform"
+    tools:context=".register_form">
+    <ViewFlipper
+        android:id="@+id/flipper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="MissingConstraints">
+        <LinearLayout
+            android:id="@+id/linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/search_on_map"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Регистрация"
+                    android:layout_marginTop="15sp"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/black"
+                    android:textSize="22sp"
+                    android:fontFamily="@font/roboto_bold"/>
+
+                <ImageButton
+                    android:id="@+id/closest"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginStart="-60dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@drawable/booking_button"
+                    android:contentDescription="@string/app_name"
+                    android:elevation="1dp"
+                    android:stateListAnimator="@null"
+                    android:translationZ="5dp"
+                    app:srcCompat="@drawable/ic_delete"
+                    tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+            </LinearLayout>
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="250dp"
+                android:padding="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:hint="name"
+                android:inputType="text" />
+            <EditText
+                android:id="@+id/surname"
+                android:layout_width="250dp"
+                android:padding="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:hint="surname"
+                android:inputType="text" />
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="250dp"
+                android:padding="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:hint="email"
+                android:inputType="text" />
+            <TextView
+                android:id="@+id/erroremail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="0sp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/roboto"
+                android:text="Недопустимая почта!"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/red"
+                />
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="250dp"
+                android:padding="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:hint="password"
+                android:inputType="text" />
+            <TextView
+                android:id="@+id/errorpassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="0sp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/roboto"
+                android:text="Недопустимый пароль!\nПароль должен содержать >= 6 символов"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/red"
+                />
+            <Button
+                android:id="@+id/btn_reg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="14sp"
+                android:backgroundTint="@color/main"
+                android:layout_marginBottom="10dp"
+                android:text="Зарегистрироваться"/>
+        </LinearLayout>
+
+    </ViewFlipper>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
