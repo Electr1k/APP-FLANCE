@@ -1,16 +1,10 @@
 package com.example.flance20;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,12 +16,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.example.flance20.model.Sessions;
-
+import com.example.flance20.model.Settings;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,9 +29,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
-
 public class ProfilePage extends AppCompatActivity {
-    String ngrok = "https://0131-95-174-108-193.eu.ngrok.io";
+    String ngrok = null;
     boolean[] flag = {false}; // окно регистрации или авторизации инактив/не добавленно
     int c1 = 0, c2 = 0; // c1 - flag active login form, c2 - register form
     View viewNoAuth = null;
@@ -49,9 +39,12 @@ public class ProfilePage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_page);
-        setUserBar();
+        Settings settings = new Settings(this);
+        ngrok = settings.getNgrokUrl(); // получаем ngrok url
+        setUserBar(); // установка юезр бара
     }
 
+    // установка формы для авторизации
     void setLoginForm(){
         LinearLayout.LayoutParams lpa = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         View login_form = getLayoutInflater().inflate(R.layout.login_form, null);
@@ -95,6 +88,7 @@ public class ProfilePage extends AppCompatActivity {
         }
     }
 
+    // установка формы для регистрации
     void setRegisterForm(){
         LinearLayout.LayoutParams lpa = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         lpa.gravity = Gravity.CENTER;
@@ -117,7 +111,7 @@ public class ProfilePage extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (password.getText().toString().length()<6 || email.getText().toString().indexOf('@')==-1 || email.getText().toString().indexOf('.')==-1 || email.getText().toString().lastIndexOf(".")<email.getText().toString().indexOf('@') || email.getText().toString().lastIndexOf("@")<email.getText().toString().indexOf('@')){
+                if (password.getText().toString().length()<6 || email.getText().toString().indexOf('@')==-1 || email.getText().toString().indexOf('.')==-1 || email.getText().toString().lastIndexOf(".")<email.getText().toString().indexOf('@') || email.getText().toString().lastIndexOf("@")<email.getText().toString().indexOf('@')||email.getText().toString().length()<8){
                     if (password.getText().toString().length()<6){
                         TextView errorPass = register_form.findViewById(R.id.errorpassword);
                         errorPass.setTextSize(14);
@@ -133,7 +127,7 @@ public class ProfilePage extends AppCompatActivity {
             }
         });
         ConstraintLayout main = findViewById(R.id.main);
-        if (!flag[0]) {
+        if (!flag[0]) { // устанавливаем форму (можно было сделать проще)
             if (c2==0) {
                 main.addView(register_form);
                 c2++;
@@ -146,12 +140,11 @@ public class ProfilePage extends AppCompatActivity {
         }
     }
 
+    // устанавливаем юзер бар
     void setUserBar(){
-        Sessions session = new Sessions(ProfilePage.this);
-        System.out.println(session);
-        System.out.println("Сессия: "+ session.getSession());
+        Settings session = new Settings(ProfilePage.this);
         LinearLayout userBar = findViewById(R.id.userBar);
-        if (session.getSession()==null) {
+        if (session.getSession()==null) { // если нет сессии(не авторизирован)
             LayoutInflater inflater = getLayoutInflater();
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             viewNoAuth = inflater.inflate(R.layout.no_auth_profeli, null);
@@ -162,18 +155,18 @@ public class ProfilePage extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     setLoginForm();
-                }
+                } // логин форма
             });
             viewNoAuth.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     setRegisterForm();
-                }
+                } // регистер форма
             });
 
             userBar.addView(viewNoAuth);
         }
-        else{
+        else{ // сессия есть
             LayoutInflater inflater = getLayoutInflater();
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             if (viewNoAuth!=null) {
@@ -203,9 +196,9 @@ public class ProfilePage extends AppCompatActivity {
         }
 
     }
-
+    // Get запрос logout (выход из аккаунта)
     class GoLogout extends AsyncTask<String, String, String> {
-        Sessions session = new Sessions(ProfilePage.this);
+        Settings session = new Settings(ProfilePage.this);
 
         protected void onPriExecute() {
             super.onPreExecute();
@@ -219,14 +212,14 @@ public class ProfilePage extends AppCompatActivity {
                 URL url = new URL(strings[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 String cookie = session.getSession();
-                connection.setRequestProperty("Cookie", cookie);
+                connection.setRequestProperty("Cookie", cookie); // устанавливаем куки
                 connection.connect();
                 InputStream stream = connection.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(stream));
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // сбор ответа
                 }
                 return buffer.toString();
 
@@ -253,7 +246,7 @@ public class ProfilePage extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             System.out.println(result);
-            if (result != null) {
+            if (result != null) { // успешно вышли
                 session.deleteSession();
                 LinearLayout userBar = findViewById(R.id.userBar);
                 userBar.removeAllViewsInLayout();
@@ -273,8 +266,9 @@ public class ProfilePage extends AppCompatActivity {
         }
     }
 
+    // Post запрос на авторизацию
     class Login extends AsyncTask<String, String, String> {
-        Sessions session = new Sessions(ProfilePage.this);
+        Settings session = new Settings(ProfilePage.this);
 
         protected void onPriExecute() {
             super.onPreExecute();
@@ -288,10 +282,10 @@ public class ProfilePage extends AppCompatActivity {
 
                 String email = strings[1], password = strings[2];
                 String jsonInputString = "{\"email\": \""+email+"\", \"password\": \""+password+"\"}";
-                byte[] out = jsonInputString.getBytes("utf-8");
+                byte[] out = jsonInputString.getBytes("utf-8");// тело запроса json
                 URL url = new URL(strings[0]);
                 connection = (HttpsURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
+                connection.setRequestMethod("POST"); // устанавливаем метод
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
                 connection.addRequestProperty("Content-Type", "application/json");
@@ -304,11 +298,11 @@ public class ProfilePage extends AppCompatActivity {
                 StringBuffer buffer = new StringBuffer();
                 String line = "", cookies="";
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // собираем ответ
                 }
                 JSONObject obj = new JSONObject(buffer.toString());
                 if (obj.getBoolean("success")){
-                    cookies = connection.getHeaderField("Set-Cookie").split(";")[0];
+                    cookies = connection.getHeaderField("Set-Cookie").split(";")[0]; // собираем куки
                     JSONObject userinfo = obj.getJSONObject("userinfo");
                     String name = userinfo.getString("name");
                     String surname = userinfo.getString("surname");
@@ -349,7 +343,7 @@ public class ProfilePage extends AppCompatActivity {
                         c1 = c2 =0;
                         flag[0] = false;
                         setContentView(R.layout.activity_profile_page);
-                        setUserBar();
+                        setUserBar(); // устанавливаем юзер бар
                     }
                     else {
                         TextView textView = findViewById(R.id.errorauth);
@@ -379,6 +373,7 @@ public class ProfilePage extends AppCompatActivity {
         }
     }
 
+    // Post запрос для регистрации
     class Registration extends AsyncTask<String, String, String> {
         protected void onPriExecute() {
             super.onPreExecute();
@@ -391,10 +386,10 @@ public class ProfilePage extends AppCompatActivity {
             try {
                 String name = strings[1], surname = strings[2], email = strings[3], password = strings[4];
                 String jsonInputString = "{\"name\": \""+name+"\", \"surname\": \""+surname+"\", \"email\": \""+email+"\", \"password\": \""+password+"\"}";
-                byte[] out = jsonInputString.getBytes("utf-8");
+                byte[] out = jsonInputString.getBytes("utf-8"); // тело запроса Json
                 URL url = new URL(strings[0]);
                 connection = (HttpsURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
+                connection.setRequestMethod("POST"); // устанавливаем метод
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
                 connection.addRequestProperty("Content-Type", "application/json");
@@ -407,7 +402,7 @@ public class ProfilePage extends AppCompatActivity {
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // собираем ответ
                 }
                 JSONObject obj = new JSONObject(buffer.toString());
                 return buffer.toString();
@@ -440,7 +435,7 @@ public class ProfilePage extends AppCompatActivity {
             // обработка нет инета
             if (result!=null) {
                 try {
-                    if (new JSONObject(result).getBoolean("success")) {
+                    if (new JSONObject(result).getBoolean("success")) { // успешная регистрация
                         LayoutInflater inflater = getLayoutInflater();
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                         View view = inflater.inflate(R.layout.success_register, null);
@@ -454,12 +449,22 @@ public class ProfilePage extends AppCompatActivity {
                                 c2=0;
                                 flag[0]= false;
                                 setContentView(R.layout.activity_profile_page);
-                                setUserBar();
+                                setUserBar(); // сеттим юзербар
+                            }
+                        });
+                        view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                c1=0;
+                                c2=0;
+                                flag[0]= false;
+                                setContentView(R.layout.activity_profile_page);
+                                setUserBar(); // сеттим юезрбар
                             }
                         });
                         main.addView(view);
                     }
-                    else{
+                    else{ // неудачная рега
                         System.out.println("Почта занята");
                         TextView emailerror = findViewById(R.id.erroremail);
                         emailerror.setTextSize(16);
@@ -469,7 +474,7 @@ public class ProfilePage extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            else {
+            else { // нет инета, сеттим увед
                 ScrollView scrollView = findViewById(R.id.scroldelete);
                 scrollView.removeAllViews();
                 LayoutInflater inflater = getLayoutInflater();
@@ -493,7 +498,7 @@ public class ProfilePage extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
-
+    // ищем свайпы
     GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -507,7 +512,7 @@ public class ProfilePage extends AppCompatActivity {
 
     GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
 
-    private void SwipeUp() {
+    private void SwipeUp() { // нашли свайп, перезгрузка страницы
         System.out.println("It's swipe");
         c1=0;
         c2=0;
@@ -518,32 +523,36 @@ public class ProfilePage extends AppCompatActivity {
     public void openMain(View view){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-    }
-    public void openReservation(View view){
+    } // на главную
+    public void openReservation(View view){ // мои бронировании
         Intent intent = new Intent(this, ReservationPage.class);
         startActivity(intent);
     }
-    public void openMap(View view){
+    public void openMap(View view){ // на карту
         Intent intent = new Intent(this, MapsPage.class);
         startActivity(intent);
     }
 
-    public void openSuggestions(View view){
+    public void openSuggestions(View view){ // предложения и пожелания
         Intent intent = new Intent(this, EmptyActivity.class);
         intent.putExtra("headers", "Предложения и пожелания");
-        intent.putExtra("body", "Выразить свои предложения и пожелания вы можете на посвяте.");
+        intent.putExtra("body", "Выразить свои предложения и пожелания вы можете... А может и не можете");
         startActivity(intent);
     }
-    public void openForCafe(View view){
+    public void openForCafe(View view){ // анкеты для кафе
         Intent intent = new Intent(this, EmptyActivity.class);
         intent.putExtra("headers", "Анкета для кафе");
         intent.putExtra("body", "В разработке...");
         startActivity(intent);
     }
-    public void openAboutUs(View view){
+    public void openAboutUs(View view){ // о нас
         Intent intent = new Intent(this, EmptyActivity.class);
         intent.putExtra("headers", "О проекте");
         intent.putExtra("body", "Приложение разработано в рамках первого творческого проекта ИКТИБ.");
+        startActivity(intent);
+    }
+    public void openNgrok(View view){ // настройки ngrok
+        Intent intent = new Intent(this, NgrokActivity.class);
         startActivity(intent);
     }
 }

@@ -2,7 +2,6 @@ package com.example.flance20;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,12 +10,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.example.flance20.model.Sessions;
+import com.example.flance20.model.Settings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,21 +25,22 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.net.ssl.HttpsURLConnection;
 
 public class ReservationPage extends AppCompatActivity {
-    String ngrok = "https://0131-95-174-108-193.eu.ngrok.io";
+    String ngrok = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reservation_page);
-        new GetBooking().execute(ngrok+ "/my_booking");
+        Settings settings = new Settings(this);
+        ngrok = settings.getNgrokUrl(); // получаем ngrok url
+        new GetBooking().execute(ngrok+ "/my_booking"); // получаем мои бронирования
     }
 
-
+    // Post запрос для удаления букинга
     class DeleteBooking extends AsyncTask<String, String, String> {
-        Sessions session = new Sessions(ReservationPage.this);
+        Settings session = new Settings(ReservationPage.this);
         protected void onPriExecute() {
             super.onPreExecute();
         }
@@ -54,13 +52,13 @@ public class ReservationPage extends AppCompatActivity {
             try {
                 String id = strings[1],data=strings[2],time=strings[3], index=strings[4];
                 String jsonInputString = "{\"id\": \""+id+"\", \"data\": \""+data+"\", \"time\": \""+time+"\", \"index\": \""+index+"\"}";
-                byte[] out = jsonInputString.getBytes("utf-8");
+                byte[] out = jsonInputString.getBytes("utf-8"); // тело запроса
                 URL url = new URL(strings[0]);
                 connection = (HttpsURLConnection) url.openConnection();
                 String cookie = session.getSession();
                 System.out.println(jsonInputString);
-                connection.addRequestProperty("Cookie", cookie);
-                connection.setRequestMethod("POST");
+                connection.addRequestProperty("Cookie", cookie); // устанавливаем куки
+                connection.setRequestMethod("POST"); // устанавливаем метод
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.connect();
                 OutputStream os = connection.getOutputStream();
@@ -71,7 +69,7 @@ public class ReservationPage extends AppCompatActivity {
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // собираем ответ
                 }
 
             return buffer.toString();
@@ -100,37 +98,44 @@ public class ReservationPage extends AppCompatActivity {
             super.onPostExecute(result);
             if (result != null){
                 try {
-                    if (new JSONObject(result).getBoolean("success")) {
-                        setContentView(R.layout.activity_reservation_page);
-                        new GetBooking().execute(ngrok+ "/my_booking");
+                    if (new JSONObject(result).getBoolean("success")) { // удачно удалили
+                        setContentView(R.layout.activity_reservation_page); // перезагурзка страницы
+                        new GetBooking().execute(ngrok+ "/my_booking"); // загрузка букингов
                     }
-                    else{
+                    else{ // неудача (не авторизирован)
                         LinearLayout recyclerView = findViewById(R.id.reservationRecycler);
                         recyclerView.removeAllViews();
                         LayoutInflater inflater = getLayoutInflater();
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                         View view = inflater.inflate(R.layout.success_register, null);
-                        view.findViewById(R.id.flipper).setBackground(getDrawable(R.drawable.errorwindow));
-                        Button btn = view.findViewById(R.id.btn_auth);
-                        btn.setOnClickListener(new View.OnClickListener() {
+                        TextView textView = view.findViewById(R.id.errorwindow);
+                        textView.setText("Вы не авторизованы!");
+                        TextView button = view.findViewById(R.id.btn_auth);
+                        button.setText("Войти");
+                        lp.gravity = Gravity.CENTER;
+                        view.setLayoutParams(lp);
+                        ConstraintLayout main = findViewById(R.id.main);
+                        button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(ReservationPage.this, ProfilePage.class);
                                 startActivity(intent);
                             }
                         });
-                        TextView text = view.findViewById(R.id.errorwindow);
-                        text.setText("Вы не авторизованы");
-                        text.setGravity(Gravity.CENTER_HORIZONTAL);
-                        view.setLayoutParams(lp);
-                        ConstraintLayout main = findViewById(R.id.main);
+                        view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(ReservationPage.this, ProfilePage.class);
+                                startActivity(intent);
+                            }
+                        });
                         main.addView(view);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-            else{
+            else{ // нет инета
                 LinearLayout recyclerView = findViewById(R.id.reservationRecycler);
                 recyclerView.removeAllViews();
                 LayoutInflater inflater = getLayoutInflater();
@@ -144,9 +149,9 @@ public class ReservationPage extends AppCompatActivity {
     }
 
 
-
+    // Get запрос для получения моих бронирований
     class GetBooking extends AsyncTask<String, String, String> {
-        Sessions session = new Sessions(ReservationPage.this);
+        Settings session = new Settings(ReservationPage.this);
         protected void onPriExecute() {
             super.onPreExecute();
         }
@@ -159,18 +164,16 @@ public class ReservationPage extends AppCompatActivity {
                 URL url = new URL(strings[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 String cookie = session.getSession();
-                connection.setRequestProperty("Cookie", cookie);
+                connection.setRequestProperty("Cookie", cookie); // сеттим куки
                 connection.connect();
                 InputStream stream = connection.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(stream));
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // получаем ответ
                 }
-
                 return buffer.toString();
-
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -196,12 +199,12 @@ public class ReservationPage extends AppCompatActivity {
             if (result != null){
                 try {
                     JSONObject obj = new JSONObject(result);
-                    if (obj.getBoolean("success")){
+                    if (obj.getBoolean("success")){ // удачно получили
                         obj = obj.getJSONObject("booking");
                         int count = obj.getInt("count");
                         JSONArray reservations = obj.getJSONArray("list");
                         JSONObject item;
-                        for (int i=0;i<count;i++){
+                        for (int i=0;i<count;i++){ // через цикл добавляем брони
                             item = reservations.getJSONObject(i);
                             String name = item.getString("name");
                             String time = item.getString("time");
@@ -213,7 +216,7 @@ public class ReservationPage extends AppCompatActivity {
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                             View view = inflater.inflate(R.layout.reservation_item, null);
                             TextView dataText = view.findViewById(R.id.data);
-                            String[] months = {
+                            String[] months = { // для конвертаии из численной даты в строку
                                     "Январь",
                                     "Февраль",
                                     "Март",
@@ -240,39 +243,99 @@ public class ReservationPage extends AppCompatActivity {
                             int finalI = i;
                             btn.setOnClickListener(new View.OnClickListener() {
                                 @Override
-                                public void onClick(View view) {
-
-
-
-
-                                    new DeleteBooking().execute(ngrok+"/delete_booking", id, data,time, Integer.toString(finalI));
+                                public void onClick(View view) { // кнопка удаления
+                                    LinearLayout.LayoutParams lpa = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                                    View accept = inflater.inflate(R.layout.accept_delete, null);
+                                    lpa.gravity = Gravity.CENTER;
+                                    accept.setLayoutParams(lpa);
+                                    TextView btn_yes = accept.findViewById(R.id.yes);
+                                    btn_yes.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) { // подтверждение
+                                            ConstraintLayout main = findViewById(R.id.main);
+                                            main.removeView(findViewById(R.id.accept_delete));
+                                            new DeleteBooking().execute(ngrok+"/delete_booking", id, data,time, Integer.toString(finalI));
+                                        }
+                                    });
+                                    TextView btn_no = accept.findViewById(R.id.no);
+                                    ImageButton btn_back = accept.findViewById(R.id.closest);
+                                    btn_back.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) { // назад
+                                            ConstraintLayout main = findViewById(R.id.main);
+                                            main.removeView(findViewById(R.id.accept_delete));
+                                        }
+                                    });
+                                    btn_no.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) { // не подтвердил
+                                            ConstraintLayout main = findViewById(R.id.main);
+                                            main.removeView(findViewById(R.id.accept_delete));
+                                        }
+                                    });
+                                    ConstraintLayout main = findViewById(R.id.main);
+                                    main.addView(accept);
                                 }
                             });
                             view.setLayoutParams(lp);
                             linearLayout.addView(view);
                         }
+                        if (count == 0){
+                            LinearLayout recyclerView = findViewById(R.id.reservationRecycler);
+                            recyclerView.removeAllViews();
+                            LayoutInflater inflater = getLayoutInflater();
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                            View view = inflater.inflate(R.layout.success_register, null);
+                            TextView textView = view.findViewById(R.id.errorwindow);
+                            textView.setText("Вы еще ничего не забронировали!\nНастало время это исправить");
+                            TextView button = view.findViewById(R.id.btn_auth);
+                            button.setText("Go");
+                            lp.gravity = Gravity.CENTER;
+                            view.setLayoutParams(lp);
+                            ConstraintLayout main = findViewById(R.id.main);
+                            button.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent intent = new Intent(ReservationPage.this, MainActivity.class);
+                                    startActivity(intent);
+                                }
+                            });
+                            view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    main.removeView(findViewById(R.id.success));
+                                }
+                            });
+                            main.addView(view);
+                        }
                     }
-                    else{
+                    else{ // не аввторизирован
                         LinearLayout recyclerView = findViewById(R.id.reservationRecycler);
                         recyclerView.removeAllViews();
                         LayoutInflater inflater = getLayoutInflater();
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                         View view = inflater.inflate(R.layout.success_register, null);
-                        view.findViewById(R.id.flipper).setBackground(getDrawable(R.drawable.errorwindow));
-                        Button btn = view.findViewById(R.id.btn_auth);
-                        btn.setOnClickListener(new View.OnClickListener() {
+                        TextView textView = view.findViewById(R.id.errorwindow);
+                        textView.setText("Вы не авторизованы!");
+                        TextView button = view.findViewById(R.id.btn_auth);
+                        button.setText("Войти");
+                        lp.gravity = Gravity.CENTER;
+                        view.setLayoutParams(lp);
+                        ConstraintLayout main = findViewById(R.id.main);
+                        button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(ReservationPage.this, ProfilePage.class);
                                 startActivity(intent);
                             }
                         });
-                        TextView text = view.findViewById(R.id.errorwindow);
-                        text.setText("Вы не авторизованы");
-                        text.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        text.setGravity(Gravity.CENTER_HORIZONTAL);
-                        view.setLayoutParams(lp);
-                        ConstraintLayout main = findViewById(R.id.main);
+                        view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(ReservationPage.this, ProfilePage.class);
+                                startActivity(intent);
+                            }
+                        });
                         main.addView(view);
                     }
 
@@ -281,7 +344,7 @@ public class ReservationPage extends AppCompatActivity {
                 }
 
             }
-            else{
+            else{ // нет инета
                 LinearLayout recyclerView = findViewById(R.id.reservationRecycler);
                 recyclerView.removeAllViews();
                 LayoutInflater inflater = getLayoutInflater();
@@ -295,12 +358,11 @@ public class ReservationPage extends AppCompatActivity {
     }
 
 
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
-
+    // собираем свайпы
     GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -315,19 +377,19 @@ public class ReservationPage extends AppCompatActivity {
 
     GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
 
-    private void SwipeUp() {
+    private void SwipeUp() { // перезагрузка
         setContentView(R.layout.activity_reservation_page);
         new GetBooking().execute(ngrok+ "/my_booking");
     }
-    public void openMain(View view){
+    public void openMain(View view){ // на главную
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-    public void openMap(View view){
+    public void openMap(View view){ // на карту
         Intent intent = new Intent(this, MapsPage.class);
         startActivity(intent);
     }
-    public void openProfile(View view){
+    public void openProfile(View view){ // в профиль
         Intent intent = new Intent(this, ProfilePage.class);
         startActivity(intent);
     }

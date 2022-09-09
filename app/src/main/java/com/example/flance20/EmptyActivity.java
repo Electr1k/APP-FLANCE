@@ -7,17 +7,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+
+
 public class EmptyActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.empty_activity);
+        // установка заголовка и текст внутри страницы
         TextView textHeaders = findViewById(R.id.pagename);
         TextView textBody = findViewById(R.id.textBody);
         String headers = getIntent().getStringExtra("headers");
-        String body = getIntent().getStringExtra("body");
         textHeaders.setText(headers);
+        String body = getIntent().getStringExtra("body");
         textBody.setText(body);
     }
 
@@ -36,4 +39,5 @@ public class EmptyActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReservationPage.class);
         startActivity(intent);
     }
+
 }

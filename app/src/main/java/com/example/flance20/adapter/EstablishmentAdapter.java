@@ -24,10 +24,10 @@ import java.io.InputStream;
 import java.util.List;
 
 public class EstablishmentAdapter extends RecyclerView.Adapter<EstablishmentAdapter.EstablishmentViewHolder> {
-
+// Адаптер для прогрузки кафешек на главной
     Context context;
     List<EstablishmentsMain> establishments;
-
+    // конструктор
     public EstablishmentAdapter(Context context, List<EstablishmentsMain> establishments) {
         this.context = context;
         this.establishments = establishments;
@@ -40,6 +40,7 @@ public class EstablishmentAdapter extends RecyclerView.Adapter<EstablishmentAdap
         return new EstablishmentAdapter.EstablishmentViewHolder(establishmentItem);
     }
 
+    // Загрузка картинок по url
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
@@ -65,7 +66,7 @@ public class EstablishmentAdapter extends RecyclerView.Adapter<EstablishmentAdap
         }
     }
 
-
+    // Установка View'сов для карточки + onClickListener
     @Override
     public void onBindViewHolder(@NonNull EstablishmentViewHolder holder, @SuppressLint("RecyclerView") int position) {
         System.out.println(establishments.get(position).getUrl_preview_img());
@@ -78,14 +79,17 @@ public class EstablishmentAdapter extends RecyclerView.Adapter<EstablishmentAdap
                 Intent intent = new Intent(context, BookingPage.class);
                 intent.putExtra("id", establishments.get(position).getId());
                 intent.putExtra("name", establishments.get(position).getName());
+                intent.putExtra("context", "Main");
                 context.startActivity(intent);
             }
         });
     }
+    // кол-во карточек
     @Override
     public int getItemCount() {
         return establishments.size();
     }
+    // Инициализация View'ов
     public static final class EstablishmentViewHolder extends RecyclerView.ViewHolder{
         ImageView establishment_img;
         TextView establishment_name, establishment_address;

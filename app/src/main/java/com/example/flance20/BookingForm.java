@@ -2,30 +2,25 @@ package com.example.flance20;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.se.omapi.Session;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.example.flance20.model.Sessions;
-
+import com.example.flance20.model.Settings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,25 +29,49 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
-
 import javax.net.ssl.HttpsURLConnection;
 
 public class BookingForm extends AppCompatActivity {
-    int count = 1;
-    String ngrok = "https://0131-95-174-108-193.eu.ngrok.io", id, name_f, selectData = null;
-    final int[] selectTime = {-1};
+    int count = 1; // Кол-во гостей 1<=count<=5
+    String ngrok = null, id, name_f, selectData = null; // ngrok url, id, нейм заведения для запроса, выбранная дата из карусели
+    final int[] selectTime = {-1}; // выбранное время из карусели
+    String contextParent = null; // Из какого активити был запущен
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_form);
-        setForm();
+        Settings settings = new Settings(this);
+        ngrok = settings.getNgrokUrl(); // установка ngrok url
+        setForm(); // установка формы логин/юзеринфо
     }
 
+    // Установщик формы
     void setForm(){
+        ImageButton btn_close = findViewById(R.id.closest);
         String name = getIntent().getStringExtra("name");
         String address_s = getIntent().getStringExtra("address");
         id = getIntent().getStringExtra("id");
-        name_f = name;
+        contextParent = getIntent().getStringExtra("context");
+        if (contextParent.equals("Main")){ // если запустили из мейнактивити
+            btn_close.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { // при нажатии на крестик выйти в мейнактивити
+                        Intent intent = new Intent(BookingForm.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+            });
+        }
+        else{ // если открыли с мапы
+            btn_close.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { // при нажатии на крестик выйти в мапактивити
+                    Intent intent = new Intent(BookingForm.this, MapsPage.class);
+                    startActivity(intent);
+                }
+            });
+        }
+        name_f = name; // глобал для запроса
         TextView nameEst = findViewById(R.id.nameEst), address = findViewById(R.id.addressBooking);
         nameEst.setText(name);
         address.setText(address_s);
@@ -68,16 +87,15 @@ public class BookingForm extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        if (!(booking == null)){
+        if (!(booking == null)){ // booking из Json получен корректно
             try {
-                data_s = booking.getJSONArray("data");
+                data_s = booking.getJSONArray("data"); // даты из Json
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            for (int i=0;i< data_s.length();i++){
+            for (int i=0;i< data_s.length();i++){ // Заполнение ленты дат
                 try {
                     String data = data_s.getString(i);
-
                     TextView textdata = new TextView(BookingForm.this);
                     textdata.setText(data);
                     textdata.setTextSize(30);
@@ -87,20 +105,19 @@ public class BookingForm extends AppCompatActivity {
                     textdata.setTextColor(Color.BLACK);
                     textdata.setGravity(Gravity.CENTER);
                     textdata.setLayoutParams(params);
-                    //Typeface face = Typeface.createFromAsset(getAssets(), "font/roboto_bold.xml");
-                    //textdata.setTypeface(face);
                     JSONObject finalBooking = booking;
                     int finalI = i;
+                    // При нажатии на дату с индексом i
                     textdata.setOnClickListener(new View.OnClickListener() {
                         @SuppressLint("ResourceType")
                         @Override
                         public void onClick(View view) {
-                            if (actiondata[0] == null) actiondata[0] = textdata;
+                            if (actiondata[0] == null) actiondata[0] = textdata; // выбронная дата
                             else{
-                                actiondata[0].setBackground(null);
+                                actiondata[0].setBackground(null); // если до этого дата была выбрана, убираем ей бэк
                                 actiondata[0] = textdata;
                                 selectTime[0] = -1;
-                                Button btn_booking = findViewById(R.id.booking_button);
+                                Button btn_booking = findViewById(R.id.booking_button); // устанавливаем новой дате бэк
                                 btn_booking.setBackground(getDrawable(R.drawable.booking_button_noactivity));
                             }
                             LinearLayout linearTime = findViewById(R.id.lineartime);
@@ -111,8 +128,10 @@ public class BookingForm extends AppCompatActivity {
                             try {
                                 JSONArray timeArr = finalBooking.getJSONArray(data);
                                 HashSet<Integer> timeSet = new HashSet<Integer>();
-                                boolean k =false;
+                                boolean k =false; // Карусель не пустая
+                                // Заполняем сет (множество) занятого времени
                                 for (int i=0;i<timeArr.length();i++) timeSet.add(timeArr.getInt(i));
+                                // Создаем карусель часов
                                 for (int j=0;j<23;j++){
                                     if (!timeSet.contains(j)){ // час не занят
                                         k=true;
@@ -128,14 +147,14 @@ public class BookingForm extends AppCompatActivity {
                                         textTime.setOnClickListener(new View.OnClickListener() {
                                             @SuppressLint("ResourceType")
                                             @Override
-                                            public void onClick(View view) {
-                                                if (actiontime[0] == null) actiontime[0] = textTime;
-                                                else{
+                                            public void onClick(View view) { // выбран час
+                                                if (actiontime[0] == null) actiontime[0] = textTime; // час выбран впервые
+                                                else{ // час переизбран
                                                     actiontime[0].setBackground(null);
                                                     actiontime[0] = textTime;
                                                 }
-                                                selectData = data;
-                                                selectTime[0] = finalJ;
+                                                selectData = data; // выбранная дата
+                                                selectTime[0] = finalJ; // выбранное время(час)
                                                 textTime.setBackground(getDrawable(R.drawable.booking_button));
                                                 Button button_booking = findViewById(R.id.booking_button);
                                                 button_booking.setBackground(getDrawable(R.drawable.booking_button));
@@ -144,7 +163,7 @@ public class BookingForm extends AppCompatActivity {
                                         linearTime.addView(textTime);
                                     }
                                 }
-                                if (!k){
+                                if (!k){ // Все часы заняты
                                     TextView textTime = new TextView(BookingForm.this);
                                     textTime.setText("На эту дату нет свободных часов");
                                     textTime.setTextSize(22);
@@ -174,9 +193,10 @@ public class BookingForm extends AppCompatActivity {
     }
 
 
+    // Post запрос для бронирования
     class Booking_req extends AsyncTask<String, String, String> {
 
-        Sessions session = new Sessions(BookingForm.this);
+        Settings session = new Settings(BookingForm.this);
         protected void onPriExecute() {
             super.onPreExecute();
         }
@@ -190,12 +210,11 @@ public class BookingForm extends AppCompatActivity {
             try {
                 String id = strings[1], name = strings[2], person = strings[3], data = strings[4], time = strings[5];
                 String jsonInputString = "{\"id\": \""+id+"\", \"name\": \""+name+"\", \"person\": \""+person+"\", \"data\": \""+data+"\", \"time\": \""+time+"\"}";
-                byte[] out = jsonInputString.getBytes("utf-8");
+                byte[] out = jsonInputString.getBytes("utf-8"); // тело запроса Json
                 URL url = new URL(strings[0]);
                 connection = (HttpsURLConnection) url.openConnection();
-                String cookie = session.getSession();
-                System.out.println(jsonInputString);
-                connection.addRequestProperty("Cookie", cookie);
+                String cookie = session.getSession(); // куки
+                connection.addRequestProperty("Cookie", cookie); // устанавливаем куки
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.connect();
@@ -207,7 +226,7 @@ public class BookingForm extends AppCompatActivity {
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // собираем ответ
                 }
                 return buffer.toString();
 
@@ -234,32 +253,39 @@ public class BookingForm extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             System.out.println(result);
-            // обработка нет инета
+            // обработка нет инета или сервер упал
             if (result!=null) {
                 try {
                     JSONObject obj = new JSONObject(result);
-                    if (obj.getBoolean("success")){
+                    if (obj.getBoolean("success")){ // успешно, установка уведа
                         LayoutInflater inflater = getLayoutInflater();
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                         View view = inflater.inflate(R.layout.success_register, null);
                         TextView textView = view.findViewById(R.id.errorwindow);
                         textView.setText("Вы успешно забронировали время!");
-                        Button button = view.findViewById(R.id.btn_auth);
+                        TextView button = view.findViewById(R.id.btn_auth);
                         button.setText("Мои бронирования");
                         lp.gravity = Gravity.CENTER;
                         view.setLayoutParams(lp);
                         ConstraintLayout main = findViewById(R.id.main);
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public void onClick(View view) {
+                            public void onClick(View view) { // запуск активити бронирований юзера
                                 Intent intent = new Intent(BookingForm.this, ReservationPage.class);
+                                startActivity(intent);
+                            }
+                        });
+                        view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) { // запуск мейнактивити
+                                Intent intent = new Intent(BookingForm.this, MainActivity.class);
                                 startActivity(intent);
                             }
                         });
                         main.addView(view);
                     }
                     else{
-                        if (obj.getInt("Error")==0){
+                        if (obj.getInt("Error")==0){ // час заняли, установка уведа
                             ScrollView scrollView = findViewById(R.id.scroldelete);
                             scrollView.removeAllViews();
                             LayoutInflater inflater = getLayoutInflater();
@@ -277,7 +303,7 @@ public class BookingForm extends AppCompatActivity {
                             ConstraintLayout main = findViewById(R.id.main);
                             main.addView(view);
                         }
-                        else{
+                        else{ // не авторизован, установка уведа
                             ScrollView scrollView = findViewById(R.id.scroldelete);
                             scrollView.removeAllViews();
                             LayoutInflater inflater = getLayoutInflater();
@@ -308,6 +334,7 @@ public class BookingForm extends AppCompatActivity {
 
             }
             else {
+                // нет инета, сетим увед
                 ScrollView scrollView = findViewById(R.id.scroldelete);
                 scrollView.removeAllViews();
                 LayoutInflater inflater = getLayoutInflater();
@@ -327,11 +354,11 @@ public class BookingForm extends AppCompatActivity {
         }
     }
 
+    // ловим свайп
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
-
     GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -345,7 +372,7 @@ public class BookingForm extends AppCompatActivity {
 
     GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
 
-
+    // нашли свайп рулим на главную
     private void SwipeUp() {
         System.out.println("It's swipe");
         Intent intent = new Intent(this, BookingPage.class);
@@ -354,6 +381,7 @@ public class BookingForm extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // минусуем гостей
     @SuppressLint("SetTextI18n")
     public void countMinus(View view){
         if (count > 1){
@@ -362,6 +390,7 @@ public class BookingForm extends AppCompatActivity {
             textView.setText( Integer.toString(count));
         }
     }
+    // плодим гостей
     @SuppressLint("SetTextI18n")
     public void countPlus(View view){
         if (count < 5){
@@ -370,23 +399,35 @@ public class BookingForm extends AppCompatActivity {
             textView.setText( Integer.toString(count));
         }
     }
-    public void openMain(View view){
-        onBackPressed();
+    public void openMain(View view){ // если нажали на главную
+        if (contextParent.equals("Main")) { // если пришли с главной то назад
+            onBackPressed();
+        }
+        else{ // если пришли с карты, запускем карту
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
     }
     public void booking(View view){
-        if (selectData!=null && selectTime[0]!=-1){
+        if (selectData!=null && selectTime[0]!=-1){ // выбраны и дата и время
+            // запрос на сервер для букинга
             new Booking_req().execute(ngrok+"/new_booking", id, name_f, Integer.toString(count), selectData, Integer.toString(selectTime[0]));
         }
     }
-    public void openReservation(View view){
+    public void openReservation(View view){ // мои брони
         Intent intent = new Intent(this, ReservationPage.class);
         startActivity(intent);
     }
-    public void openMap(View view){
-        Intent intent = new Intent(this, MapsPage.class);
-        startActivity(intent);
+    public void openMap(View view){ // карта
+        if (contextParent.equals("Main")) { // если пришли с главной, то на карту
+            Intent intent = new Intent(this, MapsPage.class);
+            startActivity(intent);
+        }
+        else{ // если пришли с карты, то назад
+            onBackPressed();
+        }
     }
-    public void openProfile(View view){
+    public void openProfile(View view){ // профиль
         Intent intent = new Intent(this, ProfilePage.class);
         startActivity(intent);
     }

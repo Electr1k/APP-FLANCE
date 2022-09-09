@@ -1,6 +1,7 @@
 package com.example.flance20.model;
 
 public class EstablishmentsMain {
+    // Класс для ресторанов
     int id;
     String name, address, url_preview_img;
     double lat_for_map, lng_for_map;

@@ -4,40 +4,63 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/success"
     tools:context=".success_register">
-    <ViewFlipper
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
+    <LinearLayout
             android:id="@+id/flipper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginStart="15dp"
+            app:layout_constraintTop_toTopOf="@id/success"
+            app:layout_constraintBottom_toBottomOf="@id/success"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="15dp"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/green_back"
-            tools:ignore="MissingConstraints">
+            android:layout_marginStart="15dp"
+            android:layout_marginBottom="10dp"
+            android:elevation="8dp"
+            android:background="@drawable/booking_button_noactivity">
+            <ImageButton
+                android:id="@+id/closest"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/booking_button"
+                android:contentDescription="@string/app_name"
+                android:layout_gravity="end"
+                android:layout_marginTop="5sp"
+                android:layout_marginEnd="5sp"
+                android:elevation="1dp"
+                android:onClick="deleteReservation"
+                android:stateListAnimator="@null"
+                android:translationZ="5dp"
+                app:srcCompat="@drawable/ic_delete"
+                tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
             <TextView
                 android:id="@+id/errorwindow"
-                android:textColor="@color/black"
-                android:fontFamily="@font/roboto"
-                android:padding="15dp"
-                android:paddingStart="13dp"
-                android:paddingEnd="13dp"
-                android:textSize="20sp"
-                android:gravity="center_horizontal"
-                android:text="Вы успешно зарегистрировались!\n Теперь нужно авторизироваться!"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <Button
-                android:id="@+id/btn_auth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="-12sp"
-                android:text="Войти"
-                android:textColor="@color/black"/>
-        </LinearLayout>
-    </ViewFlipper>
+                android:layout_gravity="center"
+                android:layout_marginStart="60dp"
+                android:layout_marginEnd="60dp"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Вы успешно зарегистрировались! Теперь нужно авторизироваться!"
+                android:textColor="@color/black"
+                android:layout_marginBottom="20dp"
+                android:textSize="16sp"/>
+            <TextView
+            android:id="@+id/btn_auth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/my_data"
+            android:text="Войти"
+            android:textColor="@color/black"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            android:paddingEnd="50dp"
+            android:paddingStart="50dp"
+            android:fontFamily="@font/roboto_bold"
+            android:layout_marginBottom="10dp"
+            android:textSize="16sp"
+            />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

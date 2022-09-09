@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/accept_delete"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/accept_delete_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="@id/accept_delete"
+        app:layout_constraintBottom_toBottomOf="@id/accept_delete"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:elevation="8dp"
+        android:background="@drawable/booking_button_noactivity">
+
+        <ImageButton
+            android:id="@+id/closest"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/booking_button"
+            android:contentDescription="@string/app_name"
+            android:layout_gravity="end"
+            android:layout_marginTop="5sp"
+            android:layout_marginEnd="5sp"
+            android:elevation="1dp"
+            android:onClick="deleteReservation"
+            android:stateListAnimator="@null"
+            android:translationZ="5dp"
+            app:srcCompat="@drawable/ic_delete"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="60dp"
+            android:layout_marginEnd="60dp"
+            android:fontFamily="@font/roboto_bold"
+            android:text="Вы уверены, что хотите отменить бронирование?"
+            android:textColor="@color/black"
+            android:layout_marginBottom="20dp"
+            android:textSize="16sp" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/yes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/my_data"
+                android:text="Да"
+                android:textColor="@color/black"
+                android:layout_marginEnd="20dp"
+                android:padding="10dp"
+                android:paddingEnd="50dp"
+                android:paddingStart="50dp"
+                android:fontFamily="@font/roboto_bold"
+                android:textSize="16sp"
+                />
+            <TextView
+                android:id="@+id/no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/my_data"
+                android:text="Нет"
+                android:textColor="@color/black"
+                android:layout_marginStart="20dp"
+                android:padding="10dp"
+                android:paddingEnd="50dp"
+                android:paddingStart="50dp"
+                android:fontFamily="@font/roboto_bold"
+                android:textSize="16sp"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

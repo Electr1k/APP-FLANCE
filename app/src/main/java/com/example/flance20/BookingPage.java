@@ -3,7 +3,6 @@ package com.example.flance20;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,45 +18,43 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-
-import com.example.flance20.model.Sessions;
-
+import com.example.flance20.model.Settings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.net.ssl.HttpsURLConnection;
-
 public class BookingPage extends AppCompatActivity {
 
-    String url_s, url_main_page, ngrok = "https://0131-95-174-108-193.eu.ngrok.io", address_s, nameInPage_s;
-    int id;
-    JSONObject booking_s;
+    String url_s, url_main_page, address_s, nameInPage_s; // строки для установки в View'ы
+    String ngrok = null; // ngrok url
+    int id; // id заведения
+    String contextParent = null; // контехт, откуда пришли
+    JSONObject booking_s; // jsonobj с ифной о бронировании
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_page);
+        Settings settings = new Settings(this);
+        ngrok = settings.getNgrokUrl(); // ссылка ngrok
         TextView pageName = findViewById(R.id.pagename);
         pageName.setText(getIntent().getStringExtra("name"));
         id = getIntent().getIntExtra("id", -1);
+        contextParent = getIntent().getStringExtra("context");
         url_main_page = ngrok + "/api/" + id;
-        new GetURLData().execute(url_main_page);
+        new GetURLData().execute(url_main_page); // запрос для получения инфы о заведении
     }
 
     @Override
@@ -65,7 +62,7 @@ public class BookingPage extends AppCompatActivity {
         return gestureDetector.onTouchEvent(event);
     }
 
-
+    // ловим свайпы
     GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -82,12 +79,12 @@ public class BookingPage extends AppCompatActivity {
     };
 
     GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
-
+    // если вправо - назад
     private void SwipeRight() {
         System.out.println("It's swipe on right");
         onBackPressed();
     }
-    private void SwipeUp() {
+    private void SwipeUp() { // если вверх перезапгрузка страницы
         System.out.println("It's swipe");
         setContentView(R.layout.activity_booking_page);
         TextView pageName = findViewById(R.id.pagename);
@@ -96,7 +93,7 @@ public class BookingPage extends AppCompatActivity {
         pageName.setText(getIntent().getStringExtra("name"));
         new BookingPage.GetURLData().execute(url_main_page);
     }
-
+    // загрузка картинки по url
     class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
@@ -122,7 +119,7 @@ public class BookingPage extends AppCompatActivity {
         }
     }
 
-
+    // Get запрос для получения полной инфы о заведнии
     class GetURLData extends AsyncTask<String, String, String> {
         protected void onPriExecute(){
 
@@ -139,14 +136,13 @@ public class BookingPage extends AppCompatActivity {
             try {
                 URL url = new URL(strings[0]);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
-
+                connection.connect(); // открываем коннект
                 InputStream stream = connection.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(stream));
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while((line = reader.readLine())!= null)
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // собираем ответ
                 result = buffer.toString();
                 if (connection != null)
                     connection.disconnect();
@@ -175,7 +171,7 @@ public class BookingPage extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            // удалить загрузочный слой
+            // Заполняем страницу, надо было написать отдельно метод, но мне надо делать лабу
             TextView address = findViewById(R.id.addressInPage);
             TextView description = findViewById(R.id.description);
             TextView time_work = findViewById(R.id.timeWork);
@@ -183,7 +179,7 @@ public class BookingPage extends AppCompatActivity {
             ImageView preview_img = findViewById(R.id.preview_img);
             TextView nameInpage = findViewById(R.id.nameInPage);
             LinearLayout prices = findViewById(R.id.price);
-            if (result != null) {
+            if (result != null) { // не пустой ответ
                 try {
                     JSONObject obj = new JSONObject(result);
                     address_s = obj.getString("address");
@@ -198,7 +194,7 @@ public class BookingPage extends AppCompatActivity {
                     String time_work_s = obj.getString("time_work");
                     nameInPage_s = obj.getString("name");
                     booking_s = obj.getJSONObject("booking");
-                    new DownloadImageTask(preview_img).execute(url_preview_img_s);
+                    new DownloadImageTask(preview_img).execute(url_preview_img_s); // загрузка картинки
                     address.setText(address_s);
                     nameInpage.setText(nameInPage_s);
                     description.setText(descriptions_s);
@@ -206,7 +202,7 @@ public class BookingPage extends AppCompatActivity {
                     addressDown.setText(address_s);
                     JSONArray item = prices_s.getJSONArray("item");
                     JSONArray price = prices_s.getJSONArray("price");
-
+                    // установка меню
                     for (int i=0;i<item.length();i++){
                         LinearLayout linearLayout = new LinearLayout(BookingPage.this);
                         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -233,19 +229,19 @@ public class BookingPage extends AppCompatActivity {
                         prices.addView(linearLayout);
                     }
 
-                    if (!wifi_s){
+                    if (!wifi_s){ // если нет инета в завдении удаляем
                         CardView card = findViewById(R.id.wifi);
                         card.removeAllViews();
                     }
-                    if (!battery_s){
+                    if (!battery_s){ // если нет батареи в завдении удаляем
                         CardView card = findViewById(R.id.battery);
                         card.removeAllViews();
                     }
-                    if (!silence_s){
+                    if (!silence_s){ // если нет тишины в завдении удаляем
                         CardView card = findViewById(R.id.silence);
                         card.removeAllViews();
                     }
-                    if (!cashless_payment_s){
+                    if (!cashless_payment_s){ // если нет оплаты картой в завдении удаляем
                         CardView card = findViewById(R.id.cashless_payment);
                         card.removeAllViews();
                     }
@@ -254,8 +250,7 @@ public class BookingPage extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            else{
-
+            else{ // нет инета (ответ от сервера не пришел)
                 TextView textError = findViewById(R.id.errorwindow);
                 ViewFlipper flipper = findViewById(R.id.viewflipper);
                 ScrollView scrollView = findViewById(R.id.scrollable);
@@ -268,30 +263,73 @@ public class BookingPage extends AppCompatActivity {
     }
 
 
-    public void openBookingForm(View view){
-        Intent intent = new Intent(this,BookingForm.class);
-        intent.putExtra("name", nameInPage_s);
-        intent.putExtra("address", address_s);
-        intent.putExtra("id", Integer.toString(id));
-        intent.putExtra("booking", booking_s.toString());
-        startActivity(intent);
+    public void openBookingForm(View view){ // открываем форму для бронирования
+        Settings session = new Settings(BookingPage.this);
+        if (session.getSession()!=null) { // пользователь залогинен (сессия есть)
+            Intent intent = new Intent(this, BookingForm.class);
+            intent.putExtra("name", nameInPage_s);
+            intent.putExtra("address", address_s);
+            intent.putExtra("id", Integer.toString(id));
+            intent.putExtra("booking", booking_s.toString());
+            intent.putExtra("context", contextParent);
+            startActivity(intent);
+        }
+        else{ // не авторизван, установка уведа
+            LayoutInflater inflater = getLayoutInflater();
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            view = inflater.inflate(R.layout.success_register, null);
+            TextView textView = view.findViewById(R.id.errorwindow);
+            textView.setText("Вы не авторизованы!");
+            TextView button = view.findViewById(R.id.btn_auth);
+            button.setText("Войти");
+            lp.gravity = Gravity.CENTER;
+            view.setLayoutParams(lp);
+            ConstraintLayout main = findViewById(R.id.main);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { // переходим к авторизации
+                    Intent intent = new Intent(BookingPage.this, ProfilePage.class);
+                    startActivity(intent);
+                }
+            });
+            view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { // переходим к авторизации
+                    Intent intent = new Intent(BookingPage.this, ProfilePage.class);
+                    startActivity(intent);
+                }
+            });
+            main.addView(view);
+        }
     }
+    // на главную
     public void openMain(View view){
-        onBackPressed();
+        if (contextParent.equals("Main")) { // если пришли с главной, назад
+            onBackPressed();
+        }
+        else{ // если с мапы, то на мапу
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
     }
-    public void openReservation(View view){
+    public void openReservation(View view){ // мои бронирования
         Intent intent = new Intent(this, ReservationPage.class);
         startActivity(intent);
     }
-    public void openMap(View view){
-        Intent intent = new Intent(this, MapsPage.class);
-        startActivity(intent);
+    public void openMap(View view){ // на мапу
+        if (contextParent.equals("Main")) { // если с мейна, то на мейн
+            Intent intent = new Intent(this, MapsPage.class);
+            startActivity(intent);
+        }
+        else{ // если с мапы, то назад
+            onBackPressed();
+        }
     }
-    public void openProfile(View view){
+    public void openProfile(View view){ // в профиль
         Intent intent = new Intent(this, ProfilePage.class);
         startActivity(intent);
     }
-    public void openWebSite(View view){
+    public void openWebSite(View view){ // открываем браузер
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url_s)));
     }
 }

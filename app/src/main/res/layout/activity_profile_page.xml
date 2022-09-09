@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:scrollbarSize="21dp"
     android:id="@+id/main"
+    android:background="@color/white"
     tools:context=".ProfilePage">
 
 
@@ -68,75 +69,6 @@
                         android:textColor="@color/black"
                         android:text="Настройки" />
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_marginTop="3dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="18dp"
-                        android:text="Карта"
-                        android:layout_marginStart="35dp"
-                        android:layout_marginEnd="15dp"
-                        android:fontFamily="@font/roboto_bold"
-                        android:textColor="@color/black"/>
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_gravity="center"
-                        android:background="@drawable/settings_map"
-                        android:layout_height="wrap_content">
-                        <TextView
-
-                            android:padding="4sp"
-                            android:id="@+id/sxema"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Схема"
-                            android:layout_gravity="center"
-                            android:paddingEnd="7sp"
-                            android:paddingStart="15sp"
-                            android:background="@color/main"
-                            android:textColor="@color/black"
-                            android:textSize="16dp"/>
-                        <TextView
-                            android:padding="4sp"
-                            android:id="@+id/sputnik"
-                            app:layout_constraintStart_toEndOf="@+id/sxema"
-                            android:layout_width="match_parent"
-                            android:layout_gravity="center"
-                            android:paddingEnd="7sp"
-                            android:paddingStart="7sp"
-                            android:layout_height="wrap_content"
-                            android:text="Спутник"
-                            android:backgroundTint="#DCDCDC"
-                            android:textColor="@color/black"
-                            android:textSize="16dp"/>
-
-                        <TextView
-                            android:padding="4sp"
-                            android:layout_marginStart="0dp"
-                            app:layout_constraintEnd_toStartOf="@+id/sputnik"
-                            android:paddingEnd="15sp"
-                            android:layout_gravity="center"
-                            android:paddingStart="7sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Гибрид"
-                            android:textColor="@color/black"
-                            android:textSize="16dp"/>
-                    </LinearLayout>
-                </LinearLayout>
-                <View
-                    android:id="@+id/line1"
-                    android:layout_width="match_parent"
-                    android:layout_height="2sp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginStart="35dp"
-                    android:layout_marginEnd="35dp"
-                    android:background="@color/D7" />
                 <TextView
                     android:id="@+id/trade"
                     android:layout_width="wrap_content"
@@ -188,11 +120,32 @@
                     android:onClick="openAboutUs"
                     android:layout_gravity="center_vertical"
                     android:layout_marginTop="10dp"
-                    android:layout_marginBottom="15dp"
                     android:textSize="18sp"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"
                     android:text="О проекте" />
+                <View
+                    android:id="@+id/line4"
+                    android:layout_width="match_parent"
+                    android:layout_height="2sp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="35dp"
+                    android:layout_marginEnd="35dp"
+                    android:background="@color/D7" />
+                <TextView
+                    android:id="@+id/ngrokSet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:layout_marginStart="35dp"
+                    android:onClick="openNgrok"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="15dp"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textColor="@color/black"
+                    android:text="Настройка Ngrok" />
             </LinearLayout>
 
         </LinearLayout>

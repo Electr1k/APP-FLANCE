@@ -1,37 +1,23 @@
 package com.example.flance20;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Layout;
-import android.view.Display;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
 import com.example.flance20.adapter.EstablishmentAdapter;
 import com.example.flance20.model.EstablishmentsMain;
-
+import com.example.flance20.model.Settings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,19 +30,23 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView establishmentRecycler;
-    EstablishmentAdapter establishmentAdapter;
-    String ngrok = "https://0131-95-174-108-193.eu.ngrok.io";
-    String url_main_page = ngrok + "/api/";
+    EstablishmentAdapter establishmentAdapter; // адаптер
+    String ngrok = null; // ngrok url
+    String url_main_page = null; // url
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        new GetURLData().execute(url_main_page);
-
+        Settings settings = new Settings(this);
+        ngrok = settings.getNgrokUrl(); // ngrok url
+        System.out.println(ngrok);
+        url_main_page = ngrok + "/api/";
+        new GetURLData().execute(url_main_page); // загрузка главной ленты
     }
 
+
+    // Get запрос для получения заведений
     class GetURLData extends AsyncTask<String, String, String> {
 
         protected void onPriExecute() {
@@ -70,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
             try {
                 URL url = new URL(strings[0]);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
+                connection.connect(); // открываем коннект
                 InputStream stream = connection.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(stream));
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
                 while ((line = reader.readLine()) != null)
-                    buffer.append(line).append("\n");
+                    buffer.append(line).append("\n"); // собираем ответ
                 return buffer.toString();
 
             } catch (MalformedURLException e) {
@@ -102,12 +92,12 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             System.out.println(result);
-            if (result != null) {
+            if (result != null) { // успешно получили ответ
                 try {
                     JSONObject obj = new JSONObject(result);
                     List<EstablishmentsMain> establishmentsList = new ArrayList<>();
                     JSONArray establishments = obj.getJSONArray("establishments");
-                    for (int i = 0; i < establishments.length(); i++) {
+                    for (int i = 0; i < establishments.length(); i++) { // добавляем в сет заведения
                         JSONObject establishment = establishments.getJSONObject(i);
                         int id = establishment.getInt("id");
                         String name = establishment.getString("name");
@@ -117,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
                         double lng_for_map = establishment.getDouble("lng_for_map");
                         establishmentsList.add(new EstablishmentsMain(id, name, address, url_preview_img, lat_for_map, lng_for_map));
                     }
-                    setEstablishmentsRecycler(establishmentsList);
+                    setEstablishmentsRecycler(establishmentsList); // запускаем адаптер
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-            else{
+            else{ // если не получили ответ, ставим увед
                 RecyclerView recyclerView = findViewById(R.id.establishmentRecycler);
                 recyclerView.removeAllViews();
                 LayoutInflater inflater = getLayoutInflater();
@@ -139,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
-
+    // ловим свайпы
     GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -153,13 +143,13 @@ public class MainActivity extends AppCompatActivity {
     };
 
     GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
-
+    // словили свайп вверх
     private void SwipeUp() {
         System.out.println("It's swipe");
         setContentView(R.layout.activity_main);
         new GetURLData().execute(url_main_page);
     }
-
+    // Запуск адаптера
     private void setEstablishmentsRecycler(List<EstablishmentsMain> establishmentsList) {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this, RecyclerView.VERTICAL, false);
         establishmentRecycler = findViewById(R.id.establishmentRecycler);
@@ -168,15 +158,15 @@ public class MainActivity extends AppCompatActivity {
         establishmentRecycler.setAdapter(establishmentAdapter);
     }
 
-    public void openMap(View view) {
+    public void openMap(View view) { // запуск карты
         Intent intent = new Intent(this, MapsPage.class);
         startActivity(intent);
     }
-    public void openReservation(View view) {
+    public void openReservation(View view) { // мои бронирования
         Intent intent = new Intent(this, ReservationPage.class);
         startActivity(intent);
     }
-    public void openProfile(View view) {
+    public void openProfile(View view) { // запуск профиля
         Intent intent = new Intent(this, ProfilePage.class);
         startActivity(intent);
     }
