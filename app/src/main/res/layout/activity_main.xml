@@ -18,8 +18,10 @@
         android:layout_marginBottom="56dp"
         app:layout_constraintBottom_toBottomOf="@+id/navigation"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -92,33 +94,49 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:id="@+id/search"
             android:layout_width="match_parent"
-            android:layout_height="36dp"
+            android:layout_height="match_parent"
             android:layout_marginStart="22dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="22dp"
+            android:layout_marginBottom="12dp"
             android:background="@drawable/search"
             android:elevation="5dp"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
+            <EditText
                 android:id="@+id/textsearch"
-                android:layout_width="138dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="-12dp"
-                android:alpha="0.3"
-                android:color="@color/black"
-                android:fontFamily="@font/michroma"
-                android:text="@string/search"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="6dp"
+                android:paddingBottom="3sp"
+                android:paddingStart="15sp"
+                android:layout_marginEnd="60dp"
+                android:layout_marginStart="10sp"
+                android:textColor="@color/black"
+                android:textColorHint="#60000000"
+                android:hint="@string/search"
+                android:inputType="text"
+                android:backgroundTint="@color/navigation"/>
+            <View
+                android:layout_marginStart="-60dp"
+                android:layout_width="1sp"
+                android:layout_height="match_parent"
+                android:background="#30000000"/>
+
+            <ImageButton
+                android:layout_marginStart="13sp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/navigation"
+                android:onClick="search"
+                android:src="@drawable/ic_search" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

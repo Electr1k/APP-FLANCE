@@ -5,7 +5,7 @@ import com.yandex.mapkit.MapKitFactory;
 
 public class MainApplication extends Application {
     // Сеттим настройки при запуске приложения
-    private final String MAPKIT_API_KEY = "b16667de-040a-4f36-b577-a3e1c221b563";
+    private final String MAPKIT_API_KEY = "YOUR_MAP_API_KEY";
 
     @Override
     public void onCreate() {
@@ -13,7 +13,7 @@ public class MainApplication extends Application {
         MapKitFactory.setApiKey(MAPKIT_API_KEY);
         Settings settings = new Settings(this);
         if (settings.getNgrokUrl()==null){
-            settings.setNgrokUrl("58b3-95-174-108-193"); // дефолтный ngrok url, если нет вообще никакого
+            settings.setNgrokUrl("YOUR_NGROK_DOMAIN"); // дефолтный ngrok url, если нет вообще никакого(без http//: и .eu.)
         }
     }
 }

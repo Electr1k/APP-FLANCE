@@ -13,37 +13,55 @@
         tools:layout_editor_absoluteX="31dp"
         tools:layout_editor_absoluteY="85dp">
     </com.yandex.mapkit.mapview.MapView>
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/search"
-        android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="22dp"
-        android:elevation="7sp"
-        android:background="@drawable/search_on_map"
-        android:onClick="search"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textsearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginBottom="5dp"
-            android:alpha="0.3"
-            android:gravity="center_vertical"
-            android:color="@color/black"
-            android:fontFamily="@font/michroma"
-            android:text="@string/search"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <LinearLayout
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="22dp"
+            android:elevation="7sp"
+            android:background="@drawable/search_on_map"
+            android:onClick="search"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <EditText
+                android:id="@+id/textsearch"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="6dp"
+                android:paddingBottom="3sp"
+                android:paddingStart="15sp"
+                android:layout_marginEnd="60dp"
+                android:layout_marginStart="10sp"
+                android:textColor="@color/black"
+                android:textColorHint="#60000000"
+                android:hint="@string/search"
+                android:inputType="text"
+                android:backgroundTint="@color/navigation"/>
+            <View
+                android:layout_marginStart="-60dp"
+                android:layout_width="1sp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:layout_height="match_parent"
+                android:background="#30000000"/>
+
+            <ImageButton
+                android:layout_marginTop="6sp"
+                android:layout_marginStart="13sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="search"
+                android:background="@color/navigation"
+                android:src="@drawable/ic_search" />
+        </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/navigation"
         android:layout_width="match_parent"

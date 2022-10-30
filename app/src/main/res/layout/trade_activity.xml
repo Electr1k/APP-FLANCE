@@ -5,23 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".EmptyActivity">
-
-    <ScrollView
-        android:id="@+id/scrollable"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="40dp">
-
-        <ImageView
-            android:id="@+id/imgWe"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/about"/>
-    </ScrollView>
+    android:id="@+id/main"
+    tools:context=".TradeActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/navigation"
@@ -103,12 +88,67 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_bold"
             android:textColor="@color/black"
-            android:text="@string/app_name"
+            android:text="Предложения и пожелания"
             android:textSize="21sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <ViewFlipper
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/search_bg"
+        android:layout_marginBottom="56dp"
+        tools:ignore="UselessLeaf">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+            android:id="@+id/inputWindow"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20sp"
+            android:layout_marginRight="20sp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/booking_button_noactivity"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            tools:ignore="MissingConstraints">
+
+            <EditText
+                android:id="@+id/inputText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/navigation"
+                android:ems="10"
+                android:inputType="textMultiLine"
+                android:textColorHint="#B6B6B6"
+                android:textColor="#B6B6B6"
+                android:hint="Напишите свой отзыв здесь..." />
+        </LinearLayout>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/booking_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintTop_toBottomOf="@+id/inputWindow"
+                android:layout_gravity="center_horizontal"
+                android:padding="15dp"
+                android:background="@drawable/booking_button"
+                android:elevation="6dp"
+                android:fontFamily="@font/roboto_bold"
+                android:stateListAnimator="@null"
+                android:text="Отправить"
+                android:textColor="@color/black"
+                android:onClick="sendMessage"
+                android:textSize="16sp"
+                android:layout_marginBottom="70dp"
+                android:translationZ="4dp" />
+        </LinearLayout>
+    </ViewFlipper>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

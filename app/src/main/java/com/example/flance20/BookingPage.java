@@ -292,11 +292,11 @@ public class BookingPage extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
+            View finalView = view;
             view.findViewById(R.id.closest).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) { // переходим к авторизации
-                    Intent intent = new Intent(BookingPage.this, ProfilePage.class);
-                    startActivity(intent);
+                public void onClick(View views) { // Назад
+                    main.removeView(finalView);
                 }
             });
             main.addView(view);

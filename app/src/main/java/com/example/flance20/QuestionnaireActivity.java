@@ -1,31 +1,22 @@
 package com.example.flance20;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.io.Console;
+public class QuestionnaireActivity extends AppCompatActivity {
 
-public class EmptyActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.empty_activity);
-        // установка заголовка и текст внутри страницы
-        TextView textHeaders = findViewById(R.id.pagename);
-        String headers = getIntent().getStringExtra("headers");
-        textHeaders.setText(headers);
+        setContentView(R.layout.questionnaire_activity);
     }
 
     @Override
@@ -60,5 +51,8 @@ public class EmptyActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReservationPage.class);
         startActivity(intent);
     }
-
+    public void openWeb(View view){ //  Открываем браузер
+        String url_s = "https://docs.google.com/forms/d/e/1FAIpQLSfbf4y5WfBol0vt0IvH1AtsZBcZT-jpasWrkbYdzx-1wKL7Qg/viewform";
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url_s)));
+    }
 }

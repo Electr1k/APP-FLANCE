@@ -11,6 +11,7 @@ import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import com.example.flance20.adapter.EstablishmentAdapter;
 import com.example.flance20.model.EstablishmentsMain;
@@ -27,13 +28,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView establishmentRecycler;
     EstablishmentAdapter establishmentAdapter; // адаптер
     String ngrok = null; // ngrok url
     String url_main_page = null; // url
-
+    boolean flag_load_main = false;
+    List<EstablishmentsMain> establishmentsList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
             if (result != null) { // успешно получили ответ
                 try {
                     JSONObject obj = new JSONObject(result);
-                    List<EstablishmentsMain> establishmentsList = new ArrayList<>();
                     JSONArray establishments = obj.getJSONArray("establishments");
                     for (int i = 0; i < establishments.length(); i++) { // добавляем в сет заведения
                         JSONObject establishment = establishments.getJSONObject(i);
@@ -107,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                         double lng_for_map = establishment.getDouble("lng_for_map");
                         establishmentsList.add(new EstablishmentsMain(id, name, address, url_preview_img, lat_for_map, lng_for_map));
                     }
+                    flag_load_main = true;
                     setEstablishmentsRecycler(establishmentsList); // запускаем адаптер
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -142,6 +145,20 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    public void search(View view){
+        EditText name_search = findViewById(R.id.textsearch);
+        String name_search_s = name_search.getText().toString().toLowerCase(Locale.ROOT);
+        List<EstablishmentsMain> establishments_search = new ArrayList<>();
+        for (int i=0;i<establishmentsList.size()&&flag_load_main;i++){
+            if (establishmentsList.get(i).getName().toLowerCase().contains(name_search_s)){
+                establishments_search.add(establishmentsList.get(i));
+            }
+        }
+        setEstablishmentsRecycler(establishments_search);
+    }
+
+
     GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
     // словили свайп вверх
     private void SwipeUp() {
@@ -157,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         establishmentAdapter = new EstablishmentAdapter(MainActivity.this, establishmentsList);
         establishmentRecycler.setAdapter(establishmentAdapter);
     }
-
     public void openMap(View view) { // запуск карты
         Intent intent = new Intent(this, MapsPage.class);
         startActivity(intent);

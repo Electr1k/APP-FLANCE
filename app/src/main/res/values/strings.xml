@@ -11,4 +11,6 @@
     <string name="time">Выбор времени</string>
     <string name="title_activity_booking_item">booking_item</string>
     <string name="title_activity_register_form">register_form</string>
+    <string name="questionnaire">Если хотите разместить Ваше заведение в наше приложение, необходимо заполнить анкету, указав данные. Мы рассмотрим Вашу заявку и свяжемся с Вами!</string>
+    <string name="questionnaire_btn">Пройти анкету</string>
 </resources>

@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -189,7 +190,40 @@ public class ProfilePage extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     System.out.println("Logout");
-                    new GoLogout().execute(ngrok+"/logout");
+
+                    LinearLayout.LayoutParams lpa = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                    View accept = inflater.inflate(R.layout.accept_delete, null);
+                    lpa.gravity = Gravity.CENTER;
+                    TextView textView = accept.findViewById(R.id.name);
+                    textView.setText("Вы уверены, что хотите выйти?");
+                    accept.setLayoutParams(lpa);
+                    TextView btn_yes = accept.findViewById(R.id.yes);
+                    btn_yes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) { // подтверждение
+                            ConstraintLayout main = findViewById(R.id.main);
+                            main.removeView(findViewById(R.id.accept_delete));
+                            new GoLogout().execute(ngrok+"/logout");
+                        }
+                    });
+                    TextView btn_no = accept.findViewById(R.id.no);
+                    ImageButton btn_back = accept.findViewById(R.id.closest);
+                    btn_back.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) { // назад
+                            ConstraintLayout main = findViewById(R.id.main);
+                            main.removeView(findViewById(R.id.accept_delete));
+                        }
+                    });
+                    btn_no.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) { // не подтвердил
+                            ConstraintLayout main = findViewById(R.id.main);
+                            main.removeView(findViewById(R.id.accept_delete));
+                        }
+                    });
+                    ConstraintLayout main = findViewById(R.id.main);
+                    main.addView(accept);
                 }
             });
             System.out.println("Пользователь вошел");
@@ -534,15 +568,11 @@ public class ProfilePage extends AppCompatActivity {
     }
 
     public void openSuggestions(View view){ // предложения и пожелания
-        Intent intent = new Intent(this, EmptyActivity.class);
-        intent.putExtra("headers", "Предложения и пожелания");
-        intent.putExtra("body", "Выразить свои предложения и пожелания вы можете... А может и не можете");
+        Intent intent = new Intent(this, TradeActivity.class);
         startActivity(intent);
     }
     public void openForCafe(View view){ // анкеты для кафе
-        Intent intent = new Intent(this, EmptyActivity.class);
-        intent.putExtra("headers", "Анкета для кафе");
-        intent.putExtra("body", "В разработке...");
+        Intent intent = new Intent(this, QuestionnaireActivity.class);
         startActivity(intent);
     }
     public void openAboutUs(View view){ // о нас

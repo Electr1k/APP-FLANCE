@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import com.example.flance20.model.EstablishmentsMain;
 import com.example.flance20.model.Settings;
@@ -31,11 +32,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class MapsPage extends AppCompatActivity {
     private MapView mapView;
     String ngrok = null;
     String url_main_page = null;
+    ArrayList<EstablishmentsMain> establishmentsList = new ArrayList<>();
+    boolean flag_load_main = false;
+    CameraPosition default_position = new CameraPosition(new Point(47.211859, 38.924804), 13.0f, 0.0f, 0.0f);
     protected void onCreate(Bundle savedInstanceState) {
         MapKitFactory.initialize(this);
         // Создание MapView.
@@ -46,8 +52,7 @@ public class MapsPage extends AppCompatActivity {
         url_main_page = ngrok + "/api/";
         mapView = (MapView)findViewById(R.id.mapview);
         // Перемещение камеры в центр Таганрога.
-        mapView.getMap().move(
-                new CameraPosition(new Point(47.211859, 38.924804), 13.0f, 0.0f, 0.0f));
+        mapView.getMap().move(default_position);
 
         new GetURLData().execute(url_main_page); // получем заведения
     }
@@ -101,7 +106,6 @@ public class MapsPage extends AppCompatActivity {
             if (result != null) { // если получили ответ
                 try {
                     JSONObject obj = new JSONObject(result);
-                    ArrayList<EstablishmentsMain> establishmentsList = new ArrayList<>();
                     JSONArray establishments = obj.getJSONArray("establishments");
                     for (int i = 0; i < establishments.length(); i++) { // добавляем в лист заведения
                         JSONObject establishment = establishments.getJSONObject(i);
@@ -113,6 +117,7 @@ public class MapsPage extends AppCompatActivity {
                         double lng_for_map = establishment.getDouble("lng_for_map");
                         establishmentsList.add(new EstablishmentsMain(id, name, address, url_preview_img, lat_for_map, lng_for_map));
                     }
+                    flag_load_main = true;
                     setEstablishmentsOnMap(establishmentsList); // из листа на карту
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -166,6 +171,22 @@ public class MapsPage extends AppCompatActivity {
         MapKitFactory.getInstance().onStart();
         mapView.onStart();
     }
+    public void search(View view){
+        EditText name_search = findViewById(R.id.textsearch);
+        String name_search_s = name_search.getText().toString().toLowerCase(Locale.ROOT);
+        if (name_search_s.length()==0){
+            mapView.getMap().move(default_position);
+        }
+        else {
+            for (int i = 0; i < establishmentsList.size() && flag_load_main; i++) {
+                if (establishmentsList.get(i).getName().toLowerCase().contains(name_search_s)) {
+                    CameraPosition position = new CameraPosition(new Point(establishmentsList.get(i).getLat_for_map(),establishmentsList.get(i).getLng_for_map()), 15.25f, 0.0f, 0.0f);
+                    mapView.getMap().move(position);
+                    break;
+                }
+            }
+        }
+    }
     public void openMain(View view){ // на главную
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
@@ -178,7 +199,4 @@ public class MapsPage extends AppCompatActivity {
         Intent intent = new Intent(this, ProfilePage.class);
         startActivity(intent);
     }
-    public void search(View view){
-        System.out.println("Поиск");
-    } // поиск по карте
 }

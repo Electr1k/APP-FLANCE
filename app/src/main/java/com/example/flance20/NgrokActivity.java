@@ -3,6 +3,8 @@ package com.example.flance20;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,6 +33,23 @@ public class NgrokActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
+    }
+    // ищем свайпы
+    GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            float sensitvity = 250;
+            if (Math.abs(e2.getX() - e1.getX()) > sensitvity) {
+                onBackPressed();
+            }
+            return true;
+        }
+    };
+    GestureDetector gestureDetector = new GestureDetector(getBaseContext(), simpleOnGestureListener);
+
     public void openMain(View view){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
